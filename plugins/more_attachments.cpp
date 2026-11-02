@@ -515,6 +515,7 @@ extern "C" __declspec(dllexport) int PluginInit(const MtApi* a) {
     api = a;
     MoveFileW((gameDir() + L"attachment_lights.ini").c_str(), (gameDir() + L"more_attachments.ini").c_str());  // settings from before the rename
     MoveFileW((gameDir() + L"moretuning.ini").c_str(), (gameDir() + L"more_attachments.ini").c_str());
+    if (iniDisabled(L"more_attachments.ini")) return 0;
     CloseHandle(CreateThread(nullptr, 0, run, nullptr, 0, nullptr));
     return 0;
 }

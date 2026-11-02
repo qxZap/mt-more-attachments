@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <cstdio>
 #include <cstdlib>
+#include <set>
 #include <string>
 #include <vector>
 #include "mt_plugin_api.h"
@@ -28,7 +29,7 @@ inline bool isCDO(uintptr_t o) { return (get<uint32_t>(o + L().obj_flags) & 0x10
 inline std::string objName(uintptr_t o) { return name(get<uint32_t>(o + L().obj_name)); }
 inline int off(uintptr_t cls, const char* n) { return api->field_offset(cls, n); }
 
-// The game exe's folder (Binaries\Win64) -- where settings files have always lived.
+// The game exe's folder (Binaries\Win64). Settings live in its plugins folder: see iniFile.
 inline std::wstring gameDir() {
     wchar_t p[MAX_PATH]; GetModuleFileNameW(nullptr, p, MAX_PATH);
     *(wcsrchr(p, L'\\') + 1) = 0;
@@ -79,12 +80,21 @@ inline bool attach(const MtApi* a) {
 // and always win (live state that must not wait).
 // iniGet reads the merged value: what was declared for the key, or what the
 // file holds. Empty if there is none.
+// A settings file's path relative to the game exe, under plugins\. One still next to the exe,
+// where these used to live, moves over the first time it is asked for.
+inline std::wstring iniFile(const wchar_t* file) {
+    static std::set<std::wstring> moved;
+    std::wstring to = std::wstring(L"plugins\\") + file;
+    if (moved.insert(file).second) MoveFileW((gameDir() + file).c_str(), (gameDir() + to).c_str());
+    return to;
+}
+inline std::wstring iniPath(const wchar_t* file) { return gameDir() + iniFile(file); }
 inline bool iniSet(const wchar_t* file, const wchar_t* section, const wchar_t* key, const wchar_t* value, bool force = false) {
-    return api->ini_set(api, file, section, key, value, force ? 1 : 0) != 0;
+    return api->ini_set(api, iniFile(file).c_str(), section, key, value, force ? 1 : 0) != 0;
 }
 inline std::wstring iniGet(const wchar_t* file, const wchar_t* section, const wchar_t* key) {
     wchar_t b[1024];
-    int n = api->ini_get(file, section, key, b, sizeof b / sizeof *b);
+    int n = api->ini_get(iniFile(file).c_str(), section, key, b, sizeof b / sizeof *b);
     return n > 0 ? std::wstring(b, (size_t)n) : std::wstring();
 }
 
@@ -111,4 +121,8 @@ inline int iniInt(const wchar_t* file, const wchar_t* section, const wchar_t* ke
     if (!end || *end || n < 0) return def;
     return (int)n;
 }
+
+// [General] Disabled=1 in a plugin's own file: it starts nothing, so the game runs as if it
+// were not installed. Asked before PluginInit starts the plugin's thread.
+inline bool iniDisabled(const wchar_t* file) { return iniInt(file, L"General", L"Disabled", 0) != 0; }
 }  // namespace mt

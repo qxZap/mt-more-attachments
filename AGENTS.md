@@ -23,7 +23,7 @@ folder is the check, so log what you need to see in game.
   update recheck every signature and hardcoded offset.
 - A plugin rewriting game data affects the machine running the game: single player or the
   host. On someone else's server that server's rules apply.
-- Settings live in `Binaries\Win64\<plugin>.ini`, through the loader's ini functions. After
+- Settings live in `Binaries\Win64\plugins\<plugin>.ini`, through the loader's ini functions (`iniFile` moves an old file over). `[General] Disabled=1` makes `PluginInit` start nothing. After
   renaming one, move the old file on start so players keep their settings.
 
 ## This plugin

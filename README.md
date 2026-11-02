@@ -4,7 +4,7 @@ Plugin for More Attachments: per-section light control.
 
 Each labelled light section on an attachment gets its own Toggle, Mode and Color, stored per vehicle and slot.
 
-Settings: `Binaries\Win64\more_attachments.ini`.
+Settings: `Binaries\Win64\plugins\more_attachments.ini`.
 
 ## Install
 
