@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".github/hero.png" alt="More Attachments" width="100%">
+</p>
+
 # More Attachments
 
 Plugin for More Attachments: per-section light control.
