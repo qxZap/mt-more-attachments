@@ -474,7 +474,7 @@ static DWORD WINAPI run(LPVOID) {
     if (!api->wait_engine(INFINITE)) { MT_LOG("FAILED: no engine"); return 0; }
     if (!resolve()) { MT_LOG("FAILED: game layout changed -- plugin idle, lights behave as vanilla"); return 0; }
     for (int pass = 0;; pass++) {
-        if (pass % 30 == 0) {  // ~1 s: rescan buttons, menus and multi-light attachments
+        if (pass % 60 == 0) {  // ~2 s: rescan buttons, menus and multi-light attachments
             std::vector<Ref> b, l, pcs;
             std::map<uintptr_t, std::vector<Ref>> ctls;
             std::map<uintptr_t, Ref> inters;
@@ -497,8 +497,7 @@ static DWORD WINAPI run(LPVOID) {
                 std::sort(cs.begin(), cs.end(), [](const Ref& a, const Ref& b) {  // MTLightControl, ...1, ...2
                     return fname(a.ptr + L().obj_name) < fname(b.ptr + L().obj_name);
                 });
-                int ai = -1;
-                for (int i = 0, n = api->num_objects(); i < n && ai < 0; i++) if (api->object(i) == actor) ai = i;
+                int ai = get<int>(actor + L().obj_index);
                 Fitted f;
                 f.actor = {ai, actor}; f.interactable = inters[actor]; f.controls = cs;
                 fitted[actor] = f;

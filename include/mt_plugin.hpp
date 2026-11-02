@@ -80,6 +80,12 @@ inline bool attach(const MtApi* a) {
 // and always win (live state that must not wait).
 // iniGet reads the merged value: what was declared for the key, or what the
 // file holds. Empty if there is none.
+// [General] Logging in mt_loader.ini, for a plugin keeping work that only exists to be logged.
+inline bool loggingOn() {
+    static int on = GetPrivateProfileIntW(L"General", L"Logging", 0, (gameDir() + L"mt_loader.ini").c_str());
+    return on != 0;
+}
+
 // A settings file's path relative to the game exe, under plugins\. One still next to the exe,
 // where these used to live, moves over the first time it is asked for.
 inline std::wstring iniFile(const wchar_t* file) {
