@@ -1,4 +1,4 @@
-// Attachment Lights -- per-section light control, as plugins\mt_plugin_AttachmentLights.dll.
+// More Attachments -- per-section light control for attachments, as plugins\mt_plugin_MoreAttachments.dll.
 //
 // An attachment can carry several light controls (MTLightControl, MTLightControl1,
 // ...) and labelled menu lines per section: "Toggle <S>", "<S> Mode", "<S> Color".
@@ -14,7 +14,7 @@
 //     otherwise it follows the vehicle (brake pedal, reverse gear, turn signal, headlight
 //     mode, engine, interior light, siren) -- overriding what the game applied to all
 //
-// Settings persist in Binaries\Win64\moretuning.ini, keyed by Net_VehicleId and
+// Settings persist in Binaries\Win64\more_attachments.ini, keyed by Net_VehicleId and
 // the attachment's part slot. An attachment without labelled sections is left alone, and
 // without this plugin the labelled lines still work -- they just drive every section.
 //
@@ -162,7 +162,7 @@ static void save(const Fitted& f) {
         sprintf_s(v, "%d %.4f %.4f %.4f %s", s.on ? 1 : 0, s.color[0], s.color[1], s.color[2], kModeNames[s.mode]);
         std::wstring n(s.name.begin(), s.name.end()), vv(v, v + strlen(v));
         // Live state: written through at once, so a crash cannot lose it.
-        iniSet(L"moretuning.ini", k.c_str(), n.c_str(), vv.c_str(), true);
+        iniSet(L"more_attachments.ini", k.c_str(), n.c_str(), vv.c_str(), true);
     }
 }
 
@@ -171,7 +171,7 @@ static void load(Fitted& f) {
     std::wstring k(f.key.begin(), f.key.end());
     for (auto& s : f.sec) {
         std::wstring n(s.name.begin(), s.name.end());
-        std::wstring b = iniGet(L"moretuning.ini", k.c_str(), n.c_str());
+        std::wstring b = iniGet(L"more_attachments.ini", k.c_str(), n.c_str());
         if (b.empty()) continue;
         int on = 0; float r, g, bl; wchar_t m[24] = {0};
         if (swscanf_s(b.c_str(), L"%d %f %f %f %23s", &on, &r, &g, &bl, m, 24) >= 4) {
@@ -470,7 +470,7 @@ static bool resolve() {
 }
 
 static DWORD WINAPI run(LPVOID) {
-    MT_LOG("MoreTuning loaded: per-section toggle / mode / colour for labelled attachments");
+    MT_LOG("More Attachments loaded: per-section toggle / mode / colour for labelled attachments");
     if (!api->wait_engine(INFINITE)) { MT_LOG("FAILED: no engine"); return 0; }
     if (!resolve()) { MT_LOG("FAILED: game layout changed -- plugin idle, lights behave as vanilla"); return 0; }
     for (int pass = 0;; pass++) {
@@ -513,7 +513,8 @@ extern "C" __declspec(dllexport) int PluginInit(const MtApi* a) {
     // needs only the v1 api (run_on_game_thread, process_event, reflection): any loader will do
     if (!a || a->version < 1 || a->size < offsetof(MtApi, plugin) + sizeof(void*)) return 1;
     api = a;
-    MoveFileW((gameDir() + L"attachment_lights.ini").c_str(), (gameDir() + L"moretuning.ini").c_str());  // settings from before the rename
+    MoveFileW((gameDir() + L"attachment_lights.ini").c_str(), (gameDir() + L"more_attachments.ini").c_str());  // settings from before the rename
+    MoveFileW((gameDir() + L"moretuning.ini").c_str(), (gameDir() + L"more_attachments.ini").c_str());
     CloseHandle(CreateThread(nullptr, 0, run, nullptr, 0, nullptr));
     return 0;
 }
