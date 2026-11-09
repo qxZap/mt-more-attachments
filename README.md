@@ -2,7 +2,9 @@
   <img src=".github/hero.png" alt="More Attachments" width="100%">
 </p>
 
-# More Attachments
+# Attachment Tweaks (was More Attachments)
+
+Renamed 2026-11-09: the DLL is now `mt_plugin_AttachmentTweaks.dll`, settings `attachment_tweaks.ini`. It works on any attachment, not only More Attachments' parts.
 
 Plugin for More Attachments: per-section light control.
 
